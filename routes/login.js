@@ -176,13 +176,9 @@ router.post('/verifyOTP', (req, res) => {
 router.post('/updateMeta', (req, res) => {
     getMeta(req).then(metaList => {
         if (metaList.length == 0) {
-            let newMeta = new Meta({
-                metaKey: req.body.metaKey,
-                metaValue: req.body.metaValue,
+            saveMeta(req).then(newMeta => {
+                res.json({ code: 200, msg: "success" });
             });
-        
-            let saved = await newMeta.save();
-            res.json({ code: 200, msg: "success" });
         } else {
             metaList[0].metaValue = req.body.metaValue;
             metaList[0].save().then(() => {
@@ -193,19 +189,28 @@ router.post('/updateMeta', (req, res) => {
 });
 
 router.post('/getMeta', (req, res) => {
-    res.json({ code: 200, metaValue: "aaaa" });
-    /* getMeta(req).then(metaList => {
+    getMeta(req).then(metaList => {
         if (metaList.length == 0) {
             res.json({ code: 200, metaValue: "" });
         } else {
             res.json({ code: 200, metaValue: metaList[0].metaValue });
         }
-    }); */
+    });
 });
 
 async function getMeta(req) {
     let data = await Meta.find({ metaKey: req.body.metaKey });
     return data;
+}
+
+async function saveMeta(req) {
+    let newMeta = new Meta({
+        metaKey: req.body.metaKey,
+        metaValue: req.body.metaValue,
+    });
+
+    let saved = await newMeta.save();
+    return (saved);
 }
 
 module.exports = router;
